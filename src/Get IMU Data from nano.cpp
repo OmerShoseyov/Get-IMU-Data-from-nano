@@ -65,7 +65,7 @@ void send_IMU_data(){
   Serial.print(", ");
   Serial.println(g_range, HEX);
 */
-  Serial.println("AccX = " + AccX_str + ", " + "AccY = " + AccY_str + ", " + "AccZ = " + AccZ_str);
+  Serial.println(AccX_str + " " + AccY_str + " " + AccZ_str);
 }
 
 void set_g_range(int g){
@@ -116,14 +116,20 @@ void setup() {
   delay(20);
 
   // Call this function if you need to get the IMU error values for your module
-  calculate_IMU_error();
-  delay(50);
+  //calculate_IMU_error();
+  //delay(20);
+  Serial.println("Ready");
 }
 
 void loop() {
   while(Serial.available() > 1){
     g = Serial.parseInt();
-    go = Serial.parseInt();
+    if(g != 0)
+      go = 1;
+    else{
+      go = 0;
+      Serial.println("Ready");
+    }
     set_g_range(g);
   }
 
