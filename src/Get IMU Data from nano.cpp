@@ -47,26 +47,39 @@ void calculate_IMU_error() {
 }
 
 void send_IMU_data(){
-   // === Read acceleromter data === //
-  Wire.beginTransmission(IMU);
-  Wire.write(0x3B); // Start with register 0x3B (ACCEL_XOUT_H)
-  Wire.endTransmission(false);
-  Wire.requestFrom(IMU, 6, true); // Read 6 registers total, each axis value is stored in 2 registers
-  //For a range of +-2g, we need to divide the raw values by 16384, according to the datasheet
-  AccX = (Wire.read() << 8 | Wire.read()) / AFS; // X-axis value
-  AccY = (Wire.read() << 8 | Wire.read()) / AFS; // Y-axis value
-  AccZ = (Wire.read() << 8 | Wire.read()) / AFS; // Z-axis value
+  static uint32_t prev_ms = millis();
+  if ((millis() - prev_ms) > 16){
+    // === Read acceleromter data === //
+    Wire.beginTransmission(IMU);
+    Wire.write(0x3B); // Start with register 0x3B (ACCEL_XOUT_H)
+    Wire.endTransmission(false);
+    Wire.requestFrom(IMU, 6, true); // Read 6 registers total, each axis value is stored in 2 registers
+    //For a range of +-2g, we need to divide the raw values by 16384, according to the datasheet
+    AccX = (Wire.read() << 8 | Wire.read()) / AFS; // X-axis value
+    AccY = (Wire.read() << 8 | Wire.read()) / AFS; // Y-axis value
+    AccZ = (Wire.read() << 8 | Wire.read()) / AFS; // Z-axis value
+  /*
+    AccX_str = String(AccX, 3);
+    AccY_str = String(AccY, 3);
+    AccZ_str = String(AccZ + 0.06, 3);
 
-  AccX_str = String(AccX, 3);
-  AccY_str = String(AccY, 3);
-  AccZ_str = String(AccZ + 0.06, 3);
-/*
-  Serial.print(AFS);
-  Serial.print(", ");
-  Serial.println(g_range, HEX);
-*/
-  Serial.println(AccX_str + " " + AccY_str + " " + AccZ_str);
+    Serial.print(AFS);
+    Serial.print(", ");
+    Serial.println(g_range, HEX);
+  */
+    //Serial.print(AccX);// + " " + AccY_str + " " + AccZ_str);
+    //Serial.print(" ");
+    Serial.println(AccY);
+    //Serial.print(" ");
+    //Serial.println(AccZ);
+ 
+    prev_ms = millis();
+  }
 }
+
+
+
+
 
 void set_g_range(int g){
   if(g == 2){
@@ -122,7 +135,7 @@ void setup() {
 }
 
 void loop() {
-  while(Serial.available() > 1){
+ /* while(Serial.available() > 1){
     g = Serial.parseInt();
     if(g != 0)
       go = 1;
@@ -135,7 +148,8 @@ void loop() {
 
   if(go){
     send_IMU_data();
-  }
+  }*/
+  send_IMU_data();
 }
 
 
